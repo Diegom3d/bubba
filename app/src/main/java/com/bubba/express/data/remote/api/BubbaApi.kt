@@ -6,6 +6,10 @@ import com.bubba.express.data.remote.dto.PedidoDetalleDto
 import com.bubba.express.data.remote.dto.PedidoDto
 import com.bubba.express.data.remote.dto.ProductoDto
 import com.bubba.express.data.remote.dto.UsuarioDto
+import com.bubba.express.data.remote.dto.LoginRequestDto
+import com.bubba.express.data.remote.dto.LoginResponseDto
+import com.bubba.express.data.remote.dto.RegisterRequestDto
+import com.bubba.express.data.remote.dto.RegisterResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -31,4 +35,15 @@ interface BubbaApi {
     suspend fun crearPedidoCompleto(
         @Body request: CrearPedidoRequestDto
     ): CrearPedidoResponseDto
+
+    @POST("v1/usuarios/login")
+    suspend fun login(
+        @Body request: LoginRequestDto
+    ): LoginResponseDto
+
+    @POST("v1/usuarios")
+    suspend fun registerUser(
+        @Body request: RegisterRequestDto
+    ): RegisterResponseDto
+
 }
