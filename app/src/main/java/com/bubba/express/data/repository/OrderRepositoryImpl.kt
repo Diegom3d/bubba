@@ -3,6 +3,10 @@ package com.bubba.express.data.repository
 import com.bubba.express.data.remote.api.BubbaApi
 import com.bubba.express.data.remote.dto.CrearPedidoProductoDto
 import com.bubba.express.data.remote.dto.CrearPedidoRequestDto
+import com.bubba.express.data.remote.dto.CrearPedidoResponseDto
+import com.bubba.express.data.remote.dto.PedidoCreadoDataDto
+import com.bubba.express.data.remote.dto.PedidoDetalleDto
+import com.bubba.express.data.remote.dto.PedidoDto
 import com.bubba.express.domain.model.Order
 import com.bubba.express.domain.model.OrderItem
 import javax.inject.Inject
@@ -12,33 +16,27 @@ class OrderRepositoryImpl @Inject constructor(
 ) : OrderRepository {
 
     override suspend fun getOrders(): List<Order> {
-        return api.getPedidos().map {
+        val list = api.getPedidos()
+        return list.map { dto ->
             Order(
-                id = it.id_pedido,
-                usuarioId = it.id_usuario,
-                total = it.total,
-                estado = it.estado,
+                id = dto.id_pedido,
+                usuarioId = dto.id_usuario,
+                total = dto.total,
+                estado = dto.estado,
                 items = emptyList()
             )
         }
     }
 
     override suspend fun getOrderById(id: Int): Order {
-        val dto = api.getPedidoPorId(id)
+        val dto: PedidoDto = api.getPedidoPorId(id)
+
         return Order(
             id = dto.id_pedido,
             usuarioId = dto.id_usuario,
             total = dto.total,
             estado = dto.estado,
-            items = dto.detalles.map { det ->
-                OrderItem(
-                    id = det.id_detalle_pedido,
-                    nombreProducto = det.nombre_producto,
-                    cantidad = det.cantidad,
-                    precioUnitario = det.precio_unitario,
-                    subtotal = det.subtotal
-                )
-            }
+            items = emptyList() // tu backend NO devuelve detalles aquí
         )
     }
 
@@ -57,20 +55,21 @@ class OrderRepositoryImpl @Inject constructor(
             }
         )
 
-        val dto = api.crearPedidoCompleto(request)
+        val response: CrearPedidoResponseDto = api.crearPedidoCompleto(request)
+        val data: PedidoCreadoDataDto = response.data
 
         return Order(
-            id = dto.id_pedido,
-            usuarioId = dto.id_usuario,
-            total = dto.total,
-            estado = dto.estado,
-            items = dto.detalles.map {
+            id = data.id_pedido,
+            usuarioId = data.id_usuario,
+            total = data.total,
+            estado = data.estado,
+            items = data.detalles.map { det: PedidoDetalleDto ->
                 OrderItem(
-                    id = it.id_detalle_pedido,
-                    nombreProducto = it.nombre_producto,
-                    cantidad = it.cantidad,
-                    precioUnitario = it.precio_unitario,
-                    subtotal = it.subtotal
+                    id = det.id_producto,
+                    nombreProducto = "Producto #${det.id_producto}", // por ahora, backend no manda nombre
+                    cantidad = det.cantidad,
+                    precioUnitario = det.precio,
+                    subtotal = det.subtotal
                 )
             }
         )

@@ -29,7 +29,7 @@ interface BubbaApi {
     @GET("v1/pedidos/pedido/{id_pedido}")
     suspend fun getPedidoPorId(
         @Path("id_pedido") idPedido: Int
-    ): PedidoDetalleDto
+    ): PedidoDto
 
     @POST("v1/pedidos/completo")
     suspend fun crearPedidoCompleto(
